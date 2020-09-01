@@ -128,5 +128,19 @@ public class GameScoreTest
 		
     }
     
+    /**
+     * Clase de equivalencia deberia dejar como máximo valor 500, si se pasa de 500 el puntaje
+     * debe ser 500 en la clase PowerBonusScore
+     * @throws GameScoreException 
+     */
+    @Test
+    public void noDeberiaTenererValoresDeEntradaNegativa() throws GameScoreException
+    {
+    	GameScore calcu= new PowerBonusScore();
+    	int valor;
+    	valor = calcu.calculateScore(-1,-40);
+		
+		
+    }
     
 }
