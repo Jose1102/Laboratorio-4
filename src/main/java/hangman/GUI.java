@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import hangman.controller.*;
 import hangman.model.*;
 import hangman.model.dictionary.HangmanDictionary;
+import hangman.model.exception.GameScoreException;
 import hangman.setup.factoryMethod.HangmanFactoryMethod;
 import hangman.view.*;
 
@@ -42,26 +43,30 @@ public class GUI {
     private CreditsController creditsController;
     private GameOverController gameoverController;
     private HighScoreController highScoreController;
+    private GameScore puntaje;
 
     // Use Factory method
     public GUI(HangmanFactoryMethod factoryMethod) {
         this.language = factoryMethod.createLanguage();
         this.dictionary = factoryMethod.createDictionary();
         this.hangmanPanel = factoryMethod.createHangmanPanel();
+        //System.out.println("Entra default");
     }
 
     @Inject
     // Use Guice constructor
-    public GUI(Language language, HangmanDictionary dictionary, HangmanPanel hangmanPanel){
+    public GUI(Language language, HangmanDictionary dictionary, HangmanPanel hangmanPanel, GameScore puntaje){
         this.language = language;
         this.dictionary= dictionary;
         this.hangmanPanel = hangmanPanel;
+        this.puntaje = puntaje;
+        //System.out.println("Entra usando GUICE");
     }
 
     //method: setup
     //purpose: Create the various panels (game screens) for our game
     // and attach them to the main frame.
-    private void setup(){
+    private void setup() throws GameScoreException{
         mainFrameController = new MainFrameController(
                 new MainFrameModel(PROJECT_NAME,600,400,null,EXIT_ON_CLOSE),
                 new MainFrame()
@@ -79,7 +84,7 @@ public class GUI {
                 mainFrameController
         );
 
-        GameModel gameModel = new GameModel(dictionary);
+        GameModel gameModel = new GameModel(dictionary, puntaje);
         gameController = new GameController(
                 new GamePanel(gameModel.getCharacterSet(), hangmanPanel, language),
                 gameModel,
@@ -119,7 +124,12 @@ public class GUI {
     //then set the whole thing visible
     private void setupAndStart(){
         javax.swing.SwingUtilities.invokeLater(() -> {
-            setup();
+            try {
+				setup();
+			} catch (GameScoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             mainFrameController.changeVisibleCard(SPLASH_KEY);
             mainFrameController.getFrame().setVisible(true);
         });
